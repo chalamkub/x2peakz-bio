@@ -333,7 +333,7 @@
     <div id="websiteBox"><div class="state">กำลังโหลดข้อมูลเว็บไซต์…</div></div>
   </div>
 
-  <footer>${svg(ICONS.link)} 2026 x2peakz</footer>
+  <footer>© 2026 x2peakz</footer>
 </div>
 
 <script>
@@ -436,6 +436,10 @@ const SOCIAL_ICONS = {
 function svg(pathHtml, extraClass=""){
   return `<svg class="${extraClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pathHtml}</svg>`;
 }
+document.querySelector('footer').innerHTML = `
+  ${svg(ICONS.link)} 2026 x2peakz
+`;
+
 
 function formatCompact(n){
   return new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
