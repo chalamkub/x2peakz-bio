@@ -126,6 +126,17 @@
     100%{background-position:-120% 0;}
   }
 
+  /* ---------- คลาสเงาวิ่งผ่านตัวอักษร แบบใช้ซ้ำได้ (ใส่ให้ข้อความส่วนล่างของเว็บด้วย) ---------- */
+  .shine-text{
+    background-image:linear-gradient(115deg, var(--text-2) 35%, #fff 48%, rgba(255,150,150,.95) 52%, var(--text-2) 65%);
+    background-size:280% 100%;
+    background-position:200% 0;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:bioShine 4.5s linear infinite;
+  }
+
   .link-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
   .link-btn{
     display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -135,10 +146,10 @@
     padding:8px 14px;
     font-size:12px;font-weight:700;color:var(--text-1);
     box-shadow:0 2px 5px rgba(0,0,0,.25);
-    opacity:0;transform:translateY(16px);
-    transition:transform .45s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease, opacity .45s ease;
+    opacity:0;transform:translateY(16px) scale(.8);
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease, background .2s ease, opacity .45s ease;
   }
-  .link-btn.in-view{opacity:1;transform:translateY(0);}
+  .link-btn.in-view{opacity:1;transform:translateY(0) scale(1);}
   .link-btn svg{width:13px;height:13px;flex-shrink:0;stroke:var(--accent);transition:transform .3s ease;}
   .link-btn:hover{
     border-color:rgba(var(--accent-rgb),.6);
@@ -166,10 +177,10 @@
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
     border:1px solid var(--line);
-    opacity:0;transform:translateY(14px);
-    transition:box-shadow .2s ease, transform .3s ease, border-color .2s ease, opacity .4s ease;
+    opacity:0;transform:translateY(14px) scale(.75);
+    transition:box-shadow .2s ease, transform .4s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, opacity .4s ease;
   }
-  .social-btn.in-view{opacity:1;transform:translateY(0);}
+  .social-btn.in-view{opacity:1;transform:translateY(0) scale(1);}
   .social-btn svg{width:18px;height:18px;transition:transform .3s ease;}
   .social-btn:hover{
     transform:translateY(-3px) scale(1.1);
@@ -187,14 +198,14 @@
     border-radius:var(--radius-lg);
     padding:16px 17px;
     margin-top:14px;
-    opacity:0;transform:translateY(24px);
-    transition:opacity .5s ease, transform .5s ease, border-color .2s ease, box-shadow .2s ease;
+    opacity:0;transform:translateY(24px) scale(.92);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.25,.8,.4,1), border-color .2s ease, box-shadow .2s ease;
   }
-  .section-card.in-view{opacity:1;transform:translateY(0);}
+  .section-card.in-view{opacity:1;transform:translateY(0) scale(1);}
   .section-card:hover{border-color:rgba(var(--accent-rgb),.4);box-shadow:0 0 20px rgba(var(--accent-rgb),.15);}
   .section-title{
     font-size:11px;text-transform:uppercase;letter-spacing:.1em;
-    color:var(--text-2);margin-bottom:11px;font-weight:700;
+    margin-bottom:11px;font-weight:700;
   }
 
   /* discord */
@@ -212,16 +223,21 @@
   .dot{width:6px;height:6px;border-radius:50%;background:var(--online);display:inline-block;flex-shrink:0;}
   .join-btn{
     display:inline-flex;align-items:center;justify-content:center;
-    padding:4px 8px;border-radius:6px;
+    padding:8px 18px;border-radius:999px;
     background:#E42E2E;
     border:1px solid rgba(255,255,255,.15);
-    color:#fff;font-weight:700;font-size:9px;
+    color:#fff;font-weight:800;font-size:12.5px;letter-spacing:.02em;
     flex-shrink:0;
     box-shadow:0 2px 5px rgba(var(--accent-rgb),.35);
-    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease;
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    animation:joinPulse 2.2s ease-in-out infinite;
   }
-  .join-btn:hover{filter:brightness(1.08);}
-  .join-btn:active{transform:scale(.96);}
+  .join-btn:hover{filter:brightness(1.1);transform:scale(1.08);box-shadow:0 0 16px rgba(var(--accent-rgb),.7);}
+  .join-btn:active{transform:scale(.94);}
+  @keyframes joinPulse{
+    0%,100%{box-shadow:0 2px 5px rgba(var(--accent-rgb),.35);transform:scale(1);}
+    50%{box-shadow:0 0 14px rgba(var(--accent-rgb),.7);transform:scale(1.04);}
+  }
 
   /* roblox */
   .roblox-row{display:flex;align-items:center;gap:16px;}
@@ -301,19 +317,19 @@
 
   <!-- Discord -->
   <div class="section-card">
-    <div class="section-title">Discord Server</div>
+    <div class="section-title shine-text">Discord Server</div>
     <div id="discordBox"><div class="state">กำลังโหลดข้อมูลเซิร์ฟเวอร์…</div></div>
   </div>
 
   <!-- Roblox -->
   <div class="section-card">
-    <div class="section-title">Roblox</div>
+    <div class="section-title shine-text">Roblox</div>
     <div id="robloxBox"><div class="state">กำลังโหลดโปรไฟล์ Roblox…</div></div>
   </div>
 
   <!-- Website -->
   <div class="section-card">
-    <div class="section-title">เว็บไซต์ของฉัน</div>
+    <div class="section-title shine-text">เว็บไซต์ของฉัน</div>
     <div id="websiteBox"><div class="state">กำลังโหลดข้อมูลเว็บไซต์…</div></div>
   </div>
 
@@ -498,9 +514,12 @@ function setupScrollReveal(){
   }
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
+      // ไม่ unobserve แล้ว เพื่อให้แอนิเมชันซูมเข้าเล่นใหม่ทุกครั้งที่ element โผล่เข้าจอ
+      // (เดิม unobserve ทำให้เล่นแค่ครั้งเดียวตอนโหลดหน้าเว็บ เลื่อนขึ้นแล้วเลื่อนลงใหม่จะไม่ซูมอีก)
       if (entry.isIntersecting){
         entry.target.classList.add('in-view');
-        observer.unobserve(entry.target);
+      } else {
+        entry.target.classList.remove('in-view');
       }
     });
   }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
@@ -544,7 +563,7 @@ async function loadDiscord(){
         <img class="discord-icon" src="${iconUrl}" alt="${g.name}">
         <div class="discord-info">
           <div class="discord-top">
-            <div class="gname">${g.name}</div>
+            <div class="gname shine-text">${g.name}</div>
             <a class="join-btn" href="https://discord.gg/${CONFIG.discord.inviteCode}" target="_blank" rel="noopener">Join</a>
           </div>
           <div class="discord-substats">
@@ -674,7 +693,7 @@ async function loadRoblox(){
       <div class="roblox-row">
         <img class="rbx-avatar" src="${avatarUrl}" alt="${user.Username}">
         <div class="rbx-info">
-          <div class="rname">${user.DisplayName}</div>
+          <div class="rname shine-text">${user.DisplayName}</div>
           <div class="rtag">@${user.Username}</div>
           <div class="rbx-stats">
             <div class="rbx-stat">
@@ -722,7 +741,7 @@ async function loadWebsite(){
       <a class="website-card" href="${CONFIG.website.url}" target="_blank" rel="noopener">
         <img class="website-logo" src="${logo}" alt="">
         <div class="website-info">
-          <div class="wtitle">${title}</div>
+          <div class="wtitle shine-text">${title}</div>
           ${desc ? `<div class="wdesc">${desc}</div>` : ''}
           <div class="wurl">${CONFIG.website.url.replace(/^https?:\/\//,'')}</div>
         </div>
@@ -735,7 +754,7 @@ async function loadWebsite(){
       <a class="website-card" href="${CONFIG.website.url}" target="_blank" rel="noopener">
         <img class="website-logo" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(CONFIG.website.url)}&sz=128" alt="">
         <div class="website-info">
-          <div class="wtitle">${CONFIG.website.label || CONFIG.website.url}</div>
+          <div class="wtitle shine-text">${CONFIG.website.label || CONFIG.website.url}</div>
           <div class="wurl">${CONFIG.website.url.replace(/^https?:\/\//,'')}</div>
         </div>
         ${svg(ICONS.external)}
