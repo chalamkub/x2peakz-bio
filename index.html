@@ -79,7 +79,9 @@
   .name{
     font-size:26px;font-weight:800;margin:0 0 8px;
     animation:textGlow 3.2s ease-in-out infinite;
-    display:flex;align-items:center;min-height:1.2em;
+    display:flex;align-items:center;
+    height:1.2em;line-height:1.2em;
+    white-space:nowrap;overflow:hidden;
   }
   /* เคอร์เซอร์กระพริบตอนพิมพ์ชื่อ (typewriter) */
   .name .type-caret{
@@ -101,23 +103,27 @@
     }
   }
   .bio{
-    color:var(--text-2);font-size:14.5px;line-height:1.75;margin:0;
-    position:relative;overflow:hidden;
+    font-size:14.5px;line-height:1.75;margin:0;
   }
-  .bio .mono{color:#FF8080;font-family:inherit;}
-  /* ---------- เงา/แสงเลื่อนผ่านใต้ชื่อหลัก ---------- */
-  .bio::after{
-    content:'';
-    position:absolute;top:0;left:-60%;
-    width:55%;height:100%;
-    background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.16) 45%, rgba(255,120,120,.22) 55%, transparent 100%);
-    transform:skewX(-18deg);
-    animation:bioShine 4.5s ease-in-out infinite;
-    pointer-events:none;
+  .bio .mono{
+    color:#FF8080;font-family:inherit;
+    background-image:none;
+    -webkit-text-fill-color:#FF8080;
+  }
+  /* ---------- แสงวิ่งผ่านตัวอักษร (clip ตามรูปทรงตัวอักษรจริง ไม่ใช่กรอบสี่เหลี่ยม) ---------- */
+  .bio{
+    color:var(--text-2);
+    background-image:linear-gradient(115deg, var(--text-2) 35%, #fff 48%, rgba(255,150,150,.95) 52%, var(--text-2) 65%);
+    background-size:280% 100%;
+    background-position:200% 0;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:bioShine 4.5s linear infinite;
   }
   @keyframes bioShine{
-    0%{left:-60%;}
-    45%,100%{left:130%;}
+    0%{background-position:200% 0;}
+    100%{background-position:-120% 0;}
   }
 
   .link-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
@@ -129,10 +135,10 @@
     padding:8px 14px;
     font-size:12px;font-weight:700;color:var(--text-1);
     box-shadow:0 2px 5px rgba(0,0,0,.25);
-    opacity:0;transform:scale(.8) translateY(10px);
-    transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease, background .2s ease, opacity .5s ease;
+    opacity:0;transform:translateY(16px);
+    transition:transform .45s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease, opacity .45s ease;
   }
-  .link-btn.in-view{opacity:1;transform:scale(1) translateY(0);}
+  .link-btn.in-view{opacity:1;transform:translateY(0);}
   .link-btn svg{width:13px;height:13px;flex-shrink:0;stroke:var(--accent);transition:transform .3s ease;}
   .link-btn:hover{
     border-color:rgba(var(--accent-rgb),.6);
@@ -160,10 +166,10 @@
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
     border:1px solid var(--line);
-    opacity:0;transform:scale(.7);
-    transition:box-shadow .2s ease, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, opacity .45s ease;
+    opacity:0;transform:translateY(14px);
+    transition:box-shadow .2s ease, transform .3s ease, border-color .2s ease, opacity .4s ease;
   }
-  .social-btn.in-view{opacity:1;transform:scale(1);}
+  .social-btn.in-view{opacity:1;transform:translateY(0);}
   .social-btn svg{width:18px;height:18px;transition:transform .3s ease;}
   .social-btn:hover{
     transform:translateY(-3px) scale(1.1);
@@ -181,10 +187,10 @@
     border-radius:var(--radius-lg);
     padding:16px 17px;
     margin-top:14px;
-    opacity:0;transform:scale(.92) translateY(14px);
-    transition:opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, box-shadow .2s ease;
+    opacity:0;transform:translateY(24px);
+    transition:opacity .5s ease, transform .5s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .section-card.in-view{opacity:1;transform:scale(1) translateY(0);}
+  .section-card.in-view{opacity:1;transform:translateY(0);}
   .section-card:hover{border-color:rgba(var(--accent-rgb),.4);box-shadow:0 0 20px rgba(var(--accent-rgb),.15);}
   .section-title{
     font-size:11px;text-transform:uppercase;letter-spacing:.1em;
