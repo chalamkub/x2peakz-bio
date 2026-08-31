@@ -79,7 +79,17 @@
   .name{
     font-size:26px;font-weight:800;margin:0 0 8px;
     animation:textGlow 3.2s ease-in-out infinite;
+    display:flex;align-items:center;min-height:1.2em;
   }
+  /* เคอร์เซอร์กระพริบตอนพิมพ์ชื่อ (typewriter) */
+  .name .type-caret{
+    display:inline-block;width:2px;height:.95em;margin-left:2px;
+    background:var(--accent);
+    box-shadow:0 0 6px rgba(var(--accent-rgb),.8);
+    animation:caretBlink .8s step-end infinite;
+    flex-shrink:0;
+  }
+  @keyframes caretBlink{0%,100%{opacity:1;}50%{opacity:0;}}
 
   /* ---------- text glow animation ---------- */
   @keyframes textGlow{
@@ -90,23 +100,48 @@
       text-shadow:0 0 16px rgba(var(--accent-rgb),.55), 0 0 4px rgba(var(--accent-rgb),.35);
     }
   }
-  .bio{color:var(--text-2);font-size:14.5px;line-height:1.75;margin:0;}
-  .bio .mono{color:#FF8080;font-family:inherit;}
-
-  .link-list{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
-  .link-btn{
-    display:flex;align-items:center;justify-content:center;gap:4px;
-    background:#E42E2E;
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:7px;
-    padding:5px 7px;
-    font-size:10px;font-weight:700;color:#fff;
-    box-shadow:0 2px 5px rgba(var(--accent-rgb),.3);
-    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease;
+  .bio{
+    color:var(--text-2);font-size:14.5px;line-height:1.75;margin:0;
+    position:relative;overflow:hidden;
   }
-  .link-btn svg{width:11px;height:11px;flex-shrink:0;stroke:#fff;}
-  .link-btn:hover{filter:brightness(1.08);}
-  .link-btn:active{transform:scale(.97);}
+  .bio .mono{color:#FF8080;font-family:inherit;}
+  /* ---------- เงา/แสงเลื่อนผ่านใต้ชื่อหลัก ---------- */
+  .bio::after{
+    content:'';
+    position:absolute;top:0;left:-60%;
+    width:55%;height:100%;
+    background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.16) 45%, rgba(255,120,120,.22) 55%, transparent 100%);
+    transform:skewX(-18deg);
+    animation:bioShine 4.5s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes bioShine{
+    0%{left:-60%;}
+    45%,100%{left:130%;}
+  }
+
+  .link-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+  .link-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--card-2);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:12px;font-weight:700;color:var(--text-1);
+    box-shadow:0 2px 5px rgba(0,0,0,.25);
+    opacity:0;transform:scale(.8) translateY(10px);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease, background .2s ease, opacity .5s ease;
+  }
+  .link-btn.in-view{opacity:1;transform:scale(1) translateY(0);}
+  .link-btn svg{width:13px;height:13px;flex-shrink:0;stroke:var(--accent);transition:transform .3s ease;}
+  .link-btn:hover{
+    border-color:rgba(var(--accent-rgb),.6);
+    background:var(--card);
+    box-shadow:0 0 16px rgba(var(--accent-rgb),.35);
+    transform:scale(1.06) translateY(-2px);
+  }
+  .link-btn:hover svg{transform:rotate(-8deg) scale(1.15);}
+  .link-btn:active{transform:scale(.96);}
 
   .social-row{
     display:flex;justify-content:center;flex-wrap:wrap;gap:10px;
@@ -125,10 +160,17 @@
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
     border:1px solid var(--line);
-    transition:box-shadow .15s ease, transform .1s ease;
+    opacity:0;transform:scale(.7);
+    transition:box-shadow .2s ease, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, opacity .45s ease;
   }
-  .social-btn svg{width:18px;height:18px;}
-  .social-btn:hover{transform:translateY(-2px);box-shadow:0 0 14px rgba(var(--accent-rgb),.3);}
+  .social-btn.in-view{opacity:1;transform:scale(1);}
+  .social-btn svg{width:18px;height:18px;transition:transform .3s ease;}
+  .social-btn:hover{
+    transform:translateY(-3px) scale(1.1);
+    border-color:rgba(var(--accent-rgb),.6);
+    box-shadow:0 0 14px rgba(var(--accent-rgb),.4);
+  }
+  .social-btn:hover svg{transform:rotate(10deg);}
 
   /* ---------- section cards ---------- */
   .section-card{
@@ -139,7 +181,11 @@
     border-radius:var(--radius-lg);
     padding:16px 17px;
     margin-top:14px;
+    opacity:0;transform:scale(.92) translateY(14px);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, box-shadow .2s ease;
   }
+  .section-card.in-view{opacity:1;transform:scale(1) translateY(0);}
+  .section-card:hover{border-color:rgba(var(--accent-rgb),.4);box-shadow:0 0 20px rgba(var(--accent-rgb),.15);}
   .section-title{
     font-size:11px;text-transform:uppercase;letter-spacing:.1em;
     color:var(--text-2);margin-bottom:11px;font-weight:700;
@@ -378,7 +424,7 @@ function render(){
   document.getElementById('avatarImg').src = CONFIG.profile.avatar;
   const bannerWrap = document.getElementById('bannerWrap');
   bannerWrap.innerHTML = CONFIG.profile.banner ? `<img src="${CONFIG.profile.banner}" alt="banner">` : '';
-  document.getElementById('profileName').textContent = CONFIG.profile.name;
+  startNameTypewriter(CONFIG.profile.name);
   document.getElementById('profileBio').innerHTML = CONFIG.profile.bioHTML;
 
   const linkList = document.getElementById('linkList');
@@ -396,6 +442,64 @@ function render(){
     </a>
   `).join('');
 
+  setupScrollReveal();
+}
+
+/* ---------------- Typewriter: พิมพ์ชื่อหลักแล้วลบวนซ้ำ ---------------- */
+function startNameTypewriter(fullName){
+  const el = document.getElementById('profileName');
+  el.innerHTML = '<span class="type-text"></span><span class="type-caret"></span>';
+  const textEl = el.querySelector('.type-text');
+
+  const TYPE_SPEED = 110;     // ms ต่อตัวอักษรตอนพิมพ์
+  const DELETE_SPEED = 60;    // ms ต่อตัวอักษรตอนลบ
+  const HOLD_FULL = 1800;     // หยุดรอตอนพิมพ์ครบแล้ว
+  const HOLD_EMPTY = 500;     // หยุดรอตอนลบหมดแล้ว ก่อนพิมพ์ใหม่
+
+  let i = 0;
+  let deleting = false;
+
+  function tick(){
+    if (!deleting){
+      i++;
+      textEl.textContent = fullName.slice(0, i);
+      if (i >= fullName.length){
+        deleting = true;
+        setTimeout(tick, HOLD_FULL);
+        return;
+      }
+      setTimeout(tick, TYPE_SPEED);
+    } else {
+      i--;
+      textEl.textContent = fullName.slice(0, i);
+      if (i <= 0){
+        deleting = false;
+        setTimeout(tick, HOLD_EMPTY);
+        return;
+      }
+      setTimeout(tick, DELETE_SPEED);
+    }
+  }
+  setTimeout(tick, TYPE_SPEED);
+}
+
+/* ---------------- อนิเมชั่นซูมเข้าตอนเลื่อนจอมาเจอ element ---------------- */
+function setupScrollReveal(){
+  const targets = document.querySelectorAll('.link-btn, .social-btn, .section-card');
+  if (!('IntersectionObserver' in window)){
+    targets.forEach(t => t.classList.add('in-view'));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+
+  targets.forEach(t => observer.observe(t));
 }
 
 /* ---------------- View counter (hits.seeyoufarm.com badge) ---------------- */
