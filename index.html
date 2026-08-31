@@ -204,7 +204,7 @@
   .website-logo{width:42px;height:42px;border-radius:10px;object-fit:cover;background:var(--card);flex-shrink:0;}
   .website-info{flex:1;min-width:0;}
   .website-info .wtitle{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .website-info .wdesc{font-size:11px;color:var(--text-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;}
+  .website-info .wdesc{font-size:11px;color:var(--text-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;line-clamp:1;-webkit-box-orient:vertical;}
   .website-info .wurl{font-size:11px;color:var(--accent);margin-top:2px;word-break:break-all;}
   .website-card svg{flex-shrink:0;width:14px;height:14px;color:var(--text-2);}
 
@@ -278,7 +278,7 @@ const CONFIG = {
     avatar: "https://i.postimg.cc/MTzk3fNm/8BAEEE9F-C26B-49B8-8FA1-9CA18D7A95A7.gif", // ใส่ URL รูปโปรไฟล์จริง
     banner: "https://i.postimg.cc/2yXP5c6Z/C8FEB6A0-A84F-4F2F-897D-C8D122F3FCA5.gif", // ใส่ URL รูป banner ข้างๆ โลโก้ (สูงเท่ากับโลโก้ 96px แต่ยาวกว่า) — ถ้าไม่ใส่จะโชว์เป็นไล่สีแดง-ดำแทน
     name: "x2peakz",
-    bioHTML: "วัยรุ่นสร้างตัวเป็น Dev<br><span class=\"mono\">// Language: NextJs, React, Javasrict, Lua</span>"
+    bioHTML: "วัยรุ่นสร้างตัวเป็น Dev<br><span class=\"mono\">// Language: NextJs, React, JavaScript, Lua</span>"
   },
 
   // ปุ่มลิงก์หลัก — ใส่ url จริงได้เลย
@@ -416,7 +416,10 @@ async function loadDiscord(){
   }
   try {
     const res = await fetch(`https://discord.com/api/v10/invites/${CONFIG.discord.inviteCode}?with_counts=true&with_expiration=true`);
-    if (!res.ok) throw new Error('invite not found');
+    if (!res.ok) {
+      if (res.status === 404) throw new Error('invite ไม่ถูกต้องหรือหมดอายุ');
+      throw new Error('เซิร์ฟเวอร์ Discord ตอบกลับผิดปกติ (' + res.status + ')');
+    }
     const data = await res.json();
     const g = data.guild;
     const iconUrl = g.icon
@@ -440,7 +443,8 @@ async function loadDiscord(){
       </div>
     `;
   } catch (e) {
-    box.innerHTML = `<div class="state err">โหลดข้อมูล Discord ไม่สำเร็จ !</div>`;
+    console.error('Discord load failed:', e);
+    box.innerHTML = `<div class="state err">โหลดข้อมูล Discord ไม่สำเร็จ: ${e.message}</div>`;
   }
 }
 
@@ -454,10 +458,15 @@ async function loadRoblox(){
 
   box.innerHTML = `<div class="state">กำลังโหลดโปรไฟล์ Roblox…</div>`;
 
-  // ใช้ proxy ตัวเดียว (RoProxy) เท่านั้น เพื่อไม่ให้หลาย proxy ยิงพร้อมกันแล้วแย่ง/ทับกัน
-  // RoProxy: proxy เฉพาะทาง Roblox โดยตรง เปิด CORS ให้เองอยู่แล้ว เชื่อถือได้สุด
+  // หลาย proxy สำรอง — ยิงพร้อมกันทั้งหมด ตัวไหนตอบก่อนก็ใช้ตัวนั้น (Promise.any)
+  // ถ้าตัวหลัก (RoProxy) ล่ม/โดนบล็อก ยังมีตัวสำรองให้ fallback แทนที่จะพังทั้งบล็อก
+  // 1) RoProxy: proxy เฉพาะทาง Roblox โดยตรง เปิด CORS ให้เองอยู่แล้ว เชื่อถือได้สุด
+  // 2) corsproxy.io: proxy ทั่วไป ห่อ URL ปลายทางเป็น query param
+  // 3) allorigins.win: proxy ทั่วไป (แบบ raw) เผื่อกรณีสองตัวบนโดนบล็อกพร้อมกัน
   const PROXIES = [
-    (url) => url.replace(/^https:\/\/([a-z0-9-]+)\.roblox\.com/, 'https://$1.roproxy.com')
+    (url) => url.replace(/^https:\/\/([a-z0-9-]+)\.roblox\.com/, 'https://$1.roproxy.com'),
+    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
   ];
 
   const TIMEOUT_MS = 8000; // กันไม่ให้ค้างถ้า proxy ไม่ตอบสนอง
@@ -467,6 +476,7 @@ async function loadRoblox(){
     // ที่ดัก fetch ผ่าน postMessage ไปยัง frame อื่น) เอา AbortSignal ไป structured-clone ไม่ได้ ทำให้ fetch พังเงียบๆ
     // ทุก proxy พร้อมกันด้วย error เดียวกันหมด ("AbortSignal object could not be cloned")
     // แก้โดยใช้ Promise.race แทน ไม่ส่ง signal เข้า fetch เลย จะได้ไม่มี object แปลกๆ หลุดเข้าไปให้ clone พัง
+    // หมายเหตุ: request ที่แพ้ timeout จะยังวิ่งต่อในพื้นหลัง (ไม่ได้ถูกยกเลิกจริง) แต่ไม่กระทบผลลัพธ์ที่ใช้งาน
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS);
     });
@@ -474,7 +484,7 @@ async function loadRoblox(){
       const res = await fetch(url, options);
       if (!res.ok) throw new Error('bad status ' + res.status);
       const json = await res.json();
-      // allorigins ห่อผลลัพธ์ไว้ใน .contents บางกรณี (ตอบเป็น text) — เผื่อไว้
+      // allorigins/corsproxy ห่อผลลัพธ์ไว้ใน .contents บางกรณี (ตอบเป็น text) — เผื่อไว้
       if (json && typeof json.contents === 'string') {
         try { return JSON.parse(json.contents); } catch { return json; }
       }
@@ -483,8 +493,7 @@ async function loadRoblox(){
     return Promise.race([fetchPromise, timeoutPromise]);
   }
 
-  // ยิงทุก proxy พร้อมกันในคราวเดียว (แทนที่จะรอทีละตัวตามลำดับ) ตัวไหนสำเร็จก่อนก็ใช้ตัวนั้น
-  // เร็วกว่าแบบเดิมมาก และรับประกันว่าจะเห็นผลของ proxy ทุกตัวจริงๆ ไม่ใช่แค่ตัวแรก
+  // ยิงทุก proxy พร้อมกันในคราวเดียว ตัวไหนสำเร็จก่อนก็ใช้ตัวนั้น (Promise.any)
   const debugLog = [];
   async function fetchViaProxy(targetUrl, options = {}){
     const attempts = PROXIES.map(async (makeProxyUrl) => {
@@ -681,8 +690,13 @@ function getYouTubeId(url){
   return null;
 }
 function getTikTokVideoId(url){
+  // รองรับทั้งลิงก์เต็ม (tiktok.com/@user/video/1234567890) และลิงก์ตัวเลขล้วนที่มีอยู่แล้วในลิงก์
   const m = url.match(/video\/(\d+)/);
-  return m ? m[1] : null;
+  if (m) return m[1];
+  // ไม่รองรับลิงก์ย่อ (vm.tiktok.com/xxxx, vt.tiktok.com/xxxx) เพราะลิงก์เหล่านี้ redirect
+  // ไปหา video id จริงฝั่งเซิร์ฟเวอร์ ดึงจาก client-side ตรงๆ ไม่ได้ — ให้ผู้ใช้เปิดลิงก์ย่อในเบราว์เซอร์ก่อน
+  // แล้วคัดลอก URL เต็มจาก address bar (จะมี /video/<ตัวเลข>) มาใส่แทน
+  return null;
 }
 
 /* หน้าจอเบลอๆ พร้อมข้อความ "แตะเพื่อเล่นเพลง" กลางจอ — หายไปทันทีที่แตะ/คลิก แล้วค่อยปลดเสียงเพลง */
@@ -737,7 +751,10 @@ function setupMusic(){
 
   if (music.type === 'youtube') {
     const videoId = getYouTubeId(music.url);
-    if (!videoId) return;
+    if (!videoId) {
+      console.error('setupMusic: ไม่สามารถอ่าน YouTube video id จากลิงก์ที่ใส่ไว้ได้', music.url);
+      return;
+    }
 
     const holder = document.createElement('div');
     holder.id = 'ytMusicPlayer';
@@ -767,7 +784,10 @@ function setupMusic(){
 
   if (music.type === 'tiktok') {
     const videoId = getTikTokVideoId(music.url);
-    if (!videoId) return;
+    if (!videoId) {
+      console.error('setupMusic: ลิงก์ TikTok นี้อ่าน video id ไม่ได้ (อาจเป็นลิงก์ย่อ vm./vt.tiktok.com) — ให้เปิดลิงก์นี้ในเบราว์เซอร์แล้วคัดลอก URL เต็มจาก address bar (มี /video/<ตัวเลข>) มาใส่แทน', music.url);
+      return;
+    }
 
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=0&music_info=0&description=0`;
