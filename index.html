@@ -359,12 +359,13 @@ const CONFIG = {
   ],
 
   // ไอคอนโซเชียล — ใส่ url จริงของแต่ละแพลตฟอร์ม
+  // enabled: true = แสดงปุ่มนี้ / false = ซ่อนปุ่มนี้ (ไม่ต้องลบทิ้ง แค่แก้ true/false ตรงนี้)
   socials: [
-    { platform: "telegram",  url: "https://t.me/yourhandle" },
-    { platform: "facebook",  url: "https://facebook.com/yourpage" },
-    { platform: "instagram", url: "https://instagram.com/yourhandle" },
-    { platform: "tiktok",    url: "https://tiktok.com/@yourhandle" },
-    { platform: "youtube",   url: "https://youtube.com/@yourchannel" }
+    { platform: "telegram",  url: "https://t.me/yourhandle",          enabled: true },
+    { platform: "facebook",  url: "https://facebook.com/yourpage",    enabled: true },
+    { platform: "instagram", url: "https://instagram.com/yourhandle", enabled: true },
+    { platform: "tiktok",    url: "https://tiktok.com/@yourhandle",   enabled: true },
+    { platform: "youtube",   url: "https://youtube.com/@yourchannel", enabled: true }
   ],
 
   // Discord: ใส่ "โค้ดเชิญ" เช่น discord.gg/AbCdEfG -> ใส่แค่ "AbCdEfG"
@@ -458,11 +459,13 @@ function render(){
   `).join('');
 
   const socialRow = document.getElementById('socialRow');
-  socialRow.innerHTML = CONFIG.socials.map(s => `
+  const activeSocials = CONFIG.socials.filter(s => s.enabled !== false);
+  socialRow.innerHTML = activeSocials.map(s => `
     <a class="social-btn" href="${s.url}" target="_blank" rel="noopener" aria-label="${s.platform}">
       ${svg(SOCIAL_ICONS[s.platform] || ICONS.external)}
     </a>
   `).join('');
+  socialRow.style.display = activeSocials.length ? '' : 'none';
 
   setupScrollReveal();
 }
